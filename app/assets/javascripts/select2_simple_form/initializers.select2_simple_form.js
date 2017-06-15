@@ -77,19 +77,27 @@ var Select2SimpleForm = (function($) {
       select2Options.ajax = {
         url: options.ajax,
         dataType: 'json',
-        quietMillis: 250,
-        data: function (term, page) {
+        delay: 250,
+        cache: true,
+        data: function (params) {
           return {
-            q: term, page: page
+            q: params.term,
+            page: params.page
           };
         },
-        results: function (data, page) {
-          return { results: data };
+        processResults: function (data, params) {
+          params.page = params.page || 1;
+          return {
+            results: data.items,
+            pagination: {
+              more: (params.page * 30) < data.total_count
+            }
+          }
         }
       };
 
-      // By default, minimum input length will be 1
-      select2Options.minimumInputLength = 1;
+      // By default, minimum input length will be 4
+      select2Options.minimumInputLength = 4;
 
       // When initialize the Select2 element, checks if it's multiple or not.
       // In the first case, it will use all the data retrieved. Otherwise,
