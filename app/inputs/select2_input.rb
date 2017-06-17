@@ -1,11 +1,6 @@
 class Select2Input < SimpleForm::Inputs::Base
   def input(wrapper_options)
-    klass = if options.has_key? :ajax
-      generate_input_from SimpleForm::Inputs::StringInput
-            else
-      generate_input_from SimpleForm::Inputs::CollectionSelectInput
-            end
-
+    klass = generate_input_from SimpleForm::Inputs::CollectionSelectInput
     klass.new(@builder, @attribute_name, @column, @input_type, options).input wrapper_options
   end
 

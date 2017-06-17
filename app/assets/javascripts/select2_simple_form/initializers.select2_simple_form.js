@@ -102,20 +102,20 @@ var Select2SimpleForm = (function($) {
       // When initialize the Select2 element, checks if it's multiple or not.
       // In the first case, it will use all the data retrieved. Otherwise,
       // it will use the first item, because selects only one element.
-      select2Options.initSelection = function(element, callback) {
-        var ids = sanitizeInputValues(element);
-        if (ids.length > 0) {
-          $.get(options.ajax, { id: ids })
-          .done(function(data) {
-            if ( options.multiple ) {
-              element.val('');
-              callback(data);
-            } else {
-              callback(data[0]);
-            }
-          });
-        }
-      }
+      // select2Options.initSelection = function(element, callback) {
+      //   var ids = sanitizeInputValues(element);
+      //   if (ids.length > 0) {
+      //     $.get(options.ajax, { id: ids })
+      //     .done(function(data) {
+      //       if ( options.multiple ) {
+      //         element.val('');
+      //         callback(data);
+      //       } else {
+      //         callback(data[0]);
+      //       }
+      //     });
+      //   }
+      // }
     }
 
     if (options.void_option) {
