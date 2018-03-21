@@ -12,14 +12,15 @@ class Select2Input < SimpleForm::Inputs::Base
         sup = super
 
         settings = Hash.new.tap do |s|
-          s[:ajax]        = options.delete(:ajax)        if options[:ajax]
-          s[:sortable]    = options.delete(:sortable)    if options[:sortable]
-          s[:placeholder] = options.delete(:placeholder) if options[:placeholder]
-          s[:void_option] = options.delete(:void_option) if options[:void_option]
-          s[:opts_for_select2] = options.delete(:opts_for_select2) if options[:opts_for_select2]
-          s[:can_create_on_empty_result] = options.delete(:can_create_on_empty_result) if options[:can_create_on_empty_result]
-          s[:allow_html]  = true # Default value
-          s[:allow_html]  = options.delete(:allow_html)  unless options[:allow_html]
+          s[:ajax]                       = options.delete(:ajax)                        if options[:ajax]
+          s[:ajaxResolver]               = options.delete(:ajaxResolver)                if options[:ajaxResolver]
+          s[:sortable]                   = options.delete(:sortable)                    if options[:sortable]
+          s[:placeholder]                = options.delete(:placeholder)                 if options[:placeholder]
+          s[:void_option]                = options.delete(:void_option)                 if options[:void_option]
+          s[:opts_for_select2]           = options.delete(:opts_for_select2)            if options[:opts_for_select2]
+          s[:can_create_on_empty_result] = options.delete(:can_create_on_empty_result)  if options[:can_create_on_empty_result]
+          s[:allow_html]                 = true # Default value
+          s[:allow_html]                 = options.delete(:allow_html)                  unless options[:allow_html]
         end
 
         # Check for multiple is a special case dependent of input class

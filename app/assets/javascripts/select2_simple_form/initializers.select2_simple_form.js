@@ -7,9 +7,9 @@ var Select2SimpleForm = (function($) {
 
     var sanitizeInputValues = function(input) {
       return input.val().replace(/\[|\]|\"|\'/g, '');
-    }
+    };
 
-    select2Options.placeholder = options.placeholder
+    select2Options.placeholder = options.placeholder;
 
     // Check for multiple
     if (options.multiple) {
@@ -33,8 +33,14 @@ var Select2SimpleForm = (function($) {
     // Check for creation box when there were no results
     if (options.can_create_on_empty_result) {
       select2Options.formatNoMatches = function(term) {
-        return '<span style="cursor: pointer;" onclick="openTab(\'' + options.can_create_on_empty_result.url + '\')"> <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> ' + options.can_create_on_empty_result.label + '</span>';
-      }
+        return (
+          '<span style="cursor: pointer;" onclick="openTab(\'' +
+          options.can_create_on_empty_result.url +
+          '\')"> <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> ' +
+          options.can_create_on_empty_result.label +
+          '</span>'
+        );
+      };
     }
 
     // Allow for HTML markup to show properly in the resulting options
@@ -44,55 +50,62 @@ var Select2SimpleForm = (function($) {
       // We're going to use a slight variation of Select2 markMatch function
       // to avoid matches inside html tags:
       function markMatch(text, term, markup, escapeMarkup) {
-        var searchRegex = stripDiacritics(term.toUpperCase()) + "(?![^<]*>)";
+        var searchRegex = stripDiacritics(term.toUpperCase()) + '(?![^<]*>)';
         var match = stripDiacritics(text.toUpperCase()).match(searchRegex),
-            tl    = term.length;
+          tl = term.length;
 
         match = match ? match.index : -1;
 
         if (match < 0) {
-            markup.push(escapeMarkup(text));
-            return;
+          markup.push(escapeMarkup(text));
+          return;
         }
 
         markup.push(escapeMarkup(text.substring(0, match)));
         markup.push("<span class='select2-match'>");
         markup.push(escapeMarkup(text.substring(match, match + tl)));
-        markup.push("</span>");
+        markup.push('</span>');
         markup.push(escapeMarkup(text.substring(match + tl, text.length)));
       }
 
-      function formatResult(result, container, query, escapeMarkup){
-        var markup=[];
+      function formatResult(result, container, query, escapeMarkup) {
+        var markup = [];
         markMatch(this.text(result), query.term, markup, escapeMarkup);
-        return markup.join("");
+        return markup.join('');
       }
 
-      select2Options.escapeMarkup = function(m) { return m; };
+      select2Options.escapeMarkup = function(m) {
+        return m;
+      };
       select2Options.formatResult = formatResult;
     }
 
     // Check AJAX options
-    if (options.ajax) {
+    if (options.ajax || options.ajaxResolver) {
+      var ajax = options.ajax;
+      if (options.ajaxResolver) {
+        ajax = eval(options.ajaxResolver);
+      }
+
       select2Options.ajax = {
-        url: options.ajax,
+        url: ajax,
         dataType: 'json',
         delay: 250,
         cache: true,
-        data: function (params) {
+        data: function(params) {
           return {
             q: params.term,
             page: params.page
           };
         },
-        processResults: function (data, params) {
+        processResults: function(data, params) {
           params.page = params.page || 1;
           return {
             results: data.items,
             pagination: {
-              more: (params.page * 30) < data.total_count
+              more: params.page * 30 < data.total_count
             }
-          }
+          };
         }
       };
 
@@ -124,12 +137,26 @@ var Select2SimpleForm = (function($) {
 
     if (options.i18n) {
       $.extend($.fn.select2.defaults, {
-        formatNoMatches:       function () { return options.i18n.formatNoMatches },
-        formatInputTooShort:   function (input, min) { var n = min - input.length; return options.i18n.formatInputTooShort.replace(':n:', n) },
-        formatInputTooLong:    function (input, max) { var n = input.length - max; return options.i18n.formatInputTooLong.replace(':n:', n) },
-        formatSelectionTooBig: function (limit) { return options.i18n.formatSelectionTooBig.replace(':limit:', limit) },
-        formatLoadMore:        function (pageNumber) { return options.i18n.formatLoadMore.replace(':pageNumber:', pageNumber) },
-        formatSearching:       function () { return options.i18n.formatSearching; },
+        formatNoMatches: function() {
+          return options.i18n.formatNoMatches;
+        },
+        formatInputTooShort: function(input, min) {
+          var n = min - input.length;
+          return options.i18n.formatInputTooShort.replace(':n:', n);
+        },
+        formatInputTooLong: function(input, max) {
+          var n = input.length - max;
+          return options.i18n.formatInputTooLong.replace(':n:', n);
+        },
+        formatSelectionTooBig: function(limit) {
+          return options.i18n.formatSelectionTooBig.replace(':limit:', limit);
+        },
+        formatLoadMore: function(pageNumber) {
+          return options.i18n.formatLoadMore.replace(':pageNumber:', pageNumber);
+        },
+        formatSearching: function() {
+          return options.i18n.formatSearching;
+        }
       });
     }
 
@@ -139,22 +166,31 @@ var Select2SimpleForm = (function($) {
   };
 
   var initializeSelect2SimpleForm = function(options) {
-    $(this).find('[data-ui="select2-simpleform"]').each(function() {
-      var $this = $(this);
-      var dataOptions = $this.data('options');
-      var initializerOptions = prepareSelect2Options(dataOptions || options || {}, $this);
-      $this.select2(initializerOptions);
+    $(this)
+      .find('[data-ui="select2-simpleform"]')
+      .each(function() {
+        var $this = $(this);
+        var dataOptions = $this.data('options');
+        var initializerOptions = prepareSelect2Options(dataOptions || options || {}, $this);
+        $this.select2(initializerOptions);
 
-      // Post plugins for Select2
-      if (dataOptions.sortable) {
-        $this.select2('container').find('ul.select2-choices').sortable({
-          containment: 'parent',
-          start: function() { $this.select2('onSortStart'); },
-          update: function() { $this.select2('onSortEnd'); }
-        });
-      }
-    });
-  }
+        // Post plugins for Select2
+        if (dataOptions.sortable) {
+          $this
+            .select2('container')
+            .find('ul.select2-choices')
+            .sortable({
+              containment: 'parent',
+              start: function() {
+                $this.select2('onSortStart');
+              },
+              update: function() {
+                $this.select2('onSortEnd');
+              }
+            });
+        }
+      });
+  };
 
   // Load the plugin
   if (window.Turbolinks === undefined) {
@@ -168,5 +204,5 @@ var Select2SimpleForm = (function($) {
       var sel = selector || 'body';
       initializeSelect2SimpleForm.call($(sel), options);
     }
-  }
-}(jQuery));
+  };
+})(jQuery);
