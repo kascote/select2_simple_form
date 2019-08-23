@@ -83,8 +83,17 @@ var Select2SimpleForm = (function($) {
     // Check AJAX options
     if (options.ajax || options.ajaxResolver) {
       var ajax = options.ajax;
+
       if (options.ajaxResolver) {
-        ajax = eval(options.ajaxResolver);
+        function objectify(path, obj) {
+          var rc = path.split('.').reduce(function(prev, curr){return(prev ? prev[curr] : undefined);},obj);
+          if (rc == undefined) {
+            console.error('path not found obj', path);
+          }
+          return rc;
+        };
+
+        ajax = objectify(options.ajaxResolver, window);
       }
 
       select2Options.ajax = {
